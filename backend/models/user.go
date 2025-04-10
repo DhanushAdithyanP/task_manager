@@ -3,4 +3,5 @@ package models
 type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
+	Tasks    []Task `json:"tasks,omitempty"`
 }
