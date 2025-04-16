@@ -12,7 +12,7 @@ import (
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.DB.Query("SELECT id, username FROM users")
+	rows, err := db.DB.Query("SELECT id, username, role FROM users")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -22,7 +22,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	var users []models.User
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.ID, &user.Username)
+		err := rows.Scan(&user.ID, &user.Username, &user.Role)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -41,11 +41,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.DB.QueryRow("INSERT INTO users(username) VALUES($1) RETURNING id", user.Username).Scan(&user.ID)
+	err = db.DB.QueryRow(
+		"INSERT INTO users(username, password_hash, role) VALUES($1, $2, $3) RETURNING id",
+		user.Username, user.PasswordHash, user.Role,
+	).Scan(&user.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	user.PasswordHash = ""
 
 	json.NewEncoder(w).Encode(user)
 }

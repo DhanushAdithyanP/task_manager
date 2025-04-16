@@ -10,6 +10,7 @@ import (
 	"task_manager/backend/handlers"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -29,6 +30,7 @@ func main() {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
 	r.HandleFunc("/users", handlers.GetUsers).Methods("GET")
 	r.HandleFunc("/users", handlers.CreateUser).Methods("POST")
 	r.HandleFunc("/tasks", handlers.GetTasks).Methods("GET")
@@ -39,5 +41,16 @@ func main() {
 	r.HandleFunc("/users/details", handlers.GetUsersWithTasksAndSubtasks).Methods("GET")
 	r.HandleFunc("/users/details/{id}", handlers.GetUserDetailsByID).Methods("GET")
 	r.HandleFunc("/users/{id}/top-tasks", handlers.GetTopPriorityTasksFromMemory).Methods("GET")
-	log.Fatal(http.ListenAndServe(":8080", r))
+
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Vue dev server
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	})
+
+	handler := corsHandler.Handler(r)
+
+	log.Println("Backend server running on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
