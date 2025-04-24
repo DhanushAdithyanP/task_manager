@@ -1,6 +1,10 @@
 <!-- src/App.vue -->
 <template>
-</template>
-
-<script setup lang="ts">
-</script>
+    <v-app>
+      <router-view />
+    </v-app>
+  </template>
+  
+  <script setup lang="ts">
+  </script>
+  

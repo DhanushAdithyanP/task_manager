@@ -27,8 +27,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Role     string
 	}
 
-	err := db.DB.QueryRow(`SELECT username, password_hash, role FROM users WHERE username=$1`, req.Username).
-		Scan(&user.Username, &user.Password, &user.Role)
+	err := db.DB.QueryRow(`SELECT id, username, password_hash, role FROM users WHERE username=$1`, req.Username).
+		Scan(&user.ID, &user.Username, &user.Password, &user.Role)
 
 	if err != nil {
 		fmt.Println("Query error:", err)
@@ -50,8 +50,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{
-		"token": token,
-		"role":  user.Role,
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"token":   token,
+		"role":    user.Role,
+		"user_id": user.ID,
 	})
 }
